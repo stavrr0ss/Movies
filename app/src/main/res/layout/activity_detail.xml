@@ -4,85 +4,91 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorBackgroundDetail"
     tools:context="ro.atoming.movies.DetailActivity">
+
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
-
-
-        <ImageView
-            android:id="@+id/detail_movie_poster"
-            android:layout_width="200dp"
-            android:layout_height="300dp"
-            android:scaleType="centerCrop"
-            android:adjustViewBounds="true"
-            android:background="@color/colorPrimaryDark"
-            />
-        <TextView
-            android:id="@+id/movie_title_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Movie Title: "
-            android:padding="@dimen/detail_padding_horizontal"
-            android:layout_below="@+id/detail_movie_poster"/>
 
         <TextView
             android:id="@+id/movie_title_tv"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:layout_toRightOf="@+id/movie_title_label"
             android:padding="@dimen/detail_padding_horizontal"
-            android:layout_marginLeft="12dp"
-            android:layout_below="@+id/detail_movie_poster"
-            android:text="Just taking the space"/>
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/empty_textView_font_size"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/detail_movie_poster"
+            android:layout_width="@dimen/image_width"
+            android:layout_height="@dimen/image_height"
+            android:layout_below="@+id/movie_title_tv"
+            android:layout_marginLeft="@dimen/detail_padding_horizontal"
+            android:adjustViewBounds="true"
+            android:background="@color/colorPrimaryDark"
+            android:contentDescription="@string/image_description"
+            android:scaleType="centerCrop" />
+
         <TextView
             android:id="@+id/release_date_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/movie_title_label"
-            android:padding="@dimen/detail_padding_horizontal"
-            android:text="Release date: "/>
+            android:layout_below="@+id/movie_title_tv"
+            android:layout_toRightOf="@+id/detail_movie_poster"
+            android:paddingLeft="@dimen/detail_padding_horizontal"
+            android:text="@string/release_date" />
+
         <TextView
             android:id="@+id/release_date_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/movie_title_tv"
-            android:layout_toRightOf="@+id/release_date_label"
-            android:textSize="14sp"
-            android:text="22.02.2018"
-            android:padding="@dimen/detail_padding_horizontal"
-            android:layout_marginLeft="@dimen/detail_padding_horizontal"/>
+            android:layout_below="@id/release_date_label"
+            android:layout_toRightOf="@+id/detail_movie_poster"
+            android:paddingLeft="@dimen/detail_padding_horizontal"
+            android:textColor="@color/colorAccent"
+            android:textSize="@dimen/date_font_size" />
 
         <TextView
             android:id="@+id/vote_average_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/release_date_label"
+            android:layout_below="@+id/release_date_tv"
+            android:layout_marginTop="@dimen/vertical_layout_margin"
+            android:layout_toRightOf="@id/detail_movie_poster"
             android:padding="@dimen/detail_padding_horizontal"
-            android:text="Vote average: "/>
+            android:text="@string/vote_average" />
+
         <TextView
             android:id="@+id/vote_average_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/release_date_tv"
-            android:layout_toRightOf="@+id/vote_average_label"
+            android:layout_below="@+id/vote_average_label"
+            android:layout_marginLeft="@dimen/detail_padding_horizontal"
+            android:layout_marginStart="@dimen/vote_margin_left"
+            android:layout_toRightOf="@+id/detail_movie_poster"
             android:padding="@dimen/detail_padding_horizontal"
-            android:layout_marginLeft="@dimen/detail_padding_horizontal"/>
+            android:textColor="@color/colorAccent"
+            android:textSize="@dimen/empty_textView_font_size"
+            android:textStyle="bold" />
+
         <TextView
             android:id="@+id/overview_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/vote_average_label"
-            android:text="Overview: "
-            android:padding="@dimen/detail_padding_horizontal"/>
+            android:layout_below="@+id/detail_movie_poster"
+            android:padding="@dimen/detail_padding_horizontal"
+            android:text="@string/overview" />
+
         <TextView
             android:id="@+id/overview_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/overview_label"
-            android:padding="@dimen/detail_padding_horizontal"/>
+            android:padding="@dimen/detail_padding_horizontal"
+            android:textColor="@android:color/black" />
 
     </RelativeLayout>
 </ScrollView>

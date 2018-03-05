@@ -17,14 +17,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:textSize="20sp"
-        />
+        android:textSize="@dimen/empty_textView_font_size" />
 
     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="@dimen/detail_padding_horizontal"
-        android:layout_centerInParent="true"/>
+        android:layout_centerInParent="true"
+        android:padding="@dimen/detail_padding_horizontal" />
 
 </RelativeLayout>

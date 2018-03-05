@@ -1,4 +1,11 @@
 <resources>
     <string name="app_name">Movies</string>
     <string name="no_internet_text">There is no internet connection!</string>
+    <string name="parcel_reference_movie">movie</string>
+    <string name="menu_title_popular">Popular</string>
+    <string name="menu_title_top_rated">Top Rated</string>
+    <string name="release_date">Release date:</string>
+    <string name="vote_average">Vote average:</string>
+    <string name="overview">Overview:</string>
+    <string name="image_description">This is the movie poster</string>
 </resources>

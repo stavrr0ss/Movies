@@ -32,10 +32,10 @@ public class DetailActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
 
-        Movie currentMovie = intent.getParcelableExtra("movie");
+        Movie currentMovie = intent.getParcelableExtra(getString(R.string.parcel_reference_movie));
         mTitle.setText(currentMovie.getTitle());
         //set the image
-        Picasso.with(mContext).load(currentMovie.getPoster() ).into(mPoster);
+        Picasso.with(mContext).load(currentMovie.getPoster()).into(mPoster);
         mReleaseDate.setText(currentMovie.getReleaseDate());
         //converting double to String
         double userVotes = currentMovie.getUserRating();

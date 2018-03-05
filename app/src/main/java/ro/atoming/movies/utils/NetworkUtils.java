@@ -25,9 +25,7 @@ public class NetworkUtils {
     public static final String LOG_TAG = NetworkUtils.class.getSimpleName();
 
     public static final String BASE_URL = "https://api.themoviedb.org/3/movie/";
-    public static final String PATH_POPULAR = "popular";
-    public static final String PATH_TOP_RATED = "top_rated";
-    public static final String API_KEY = "50a89c5e64a09dabf5717229df4d5319";
+    public static final String API_KEY = "";
 
     public static final String api_key = "api_key";
 
@@ -41,116 +39,109 @@ public class NetworkUtils {
     public static final String JSON_OVERVIEW_KEY = "overview";
     public static final String JSON_DATE_KEY = "release_date";
 
-    public static List<Movie> searchMovies(String requestUrl){
+    public static List<Movie> searchMovies(String requestUrl) {
         URL url = buildUrl(requestUrl);
         String jsonResponse = null;
-        try{
+        try {
             jsonResponse = makeHttpRequest(url);
-        }catch (IOException e){
-            Log.e(LOG_TAG, "Problem with HTTP response !",e);
+        } catch (IOException e) {
+            Log.e(LOG_TAG, "Problem with HTTP response !", e);
         }
         List<Movie> movieList = extractJsonResponse(jsonResponse);
-        Log.v(LOG_TAG,"This is the movie list " + movieList.size());
+        Log.v(LOG_TAG, "This is the movie list " + movieList.size());
         return movieList;
     }
 
-    public static URL buildUrl(String stringUrl){
+    public static URL buildUrl(String stringUrl) {
         URL returnedUrl = null;
-        try{
-            //Uri buildUri = Uri.parse(BASE_URL).buildUpon()
-            //          .appendPath(PATH_POPULAR)
-            //         .appendQueryParameter(api_key,API_KEY).build();
+        try {
             returnedUrl = new URL(stringUrl);
-            Log.v(LOG_TAG,"this is the URL : " + returnedUrl);
-        }catch (MalformedURLException e){
+        } catch (MalformedURLException e) {
             e.printStackTrace();
         }
         return returnedUrl;
     }
 
-    private static String makeHttpRequest(URL url)throws IOException{
+    private static String makeHttpRequest(URL url) throws IOException {
         HttpURLConnection urlConnection = null;
         String jsonResponse = "";
         InputStream inputStream = null;
-        if (url == null){
+        if (url == null) {
             return jsonResponse;
         }
-        try{
-            urlConnection = (HttpURLConnection)url.openConnection();
+        try {
+            urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
-            urlConnection.setReadTimeout(10000);
-            urlConnection.setConnectTimeout(15000);
             urlConnection.connect();
 
-            if (urlConnection.getResponseCode() == 200){
+            if (urlConnection.getResponseCode() == 200) {
                 inputStream = urlConnection.getInputStream();
                 Scanner scanner = new Scanner(inputStream);
                 scanner.useDelimiter("\\A");
 
-                if (scanner.hasNext()){
+                if (scanner.hasNext()) {
                     jsonResponse = scanner.next();
                     return jsonResponse;
-                }else{
+                } else {
                     return null;
                 }
-            }else {
-                Log.v(LOG_TAG,"HTTP response is " + urlConnection.getResponseCode());
+            } else {
+                Log.v(LOG_TAG, "HTTP response is " + urlConnection.getResponseCode());
             }
-
-        }finally {
-            if (urlConnection!=null){
+        } finally {
+            if (urlConnection != null) {
                 urlConnection.disconnect();
             }
-            if (inputStream!=null){
+            if (inputStream != null) {
                 inputStream.close();
             }
         }
         return jsonResponse;
     }
 
-    public static List<Movie> extractJsonResponse(String jsonMovieList){
-        double averageVotes = 0 ;
+    public static List<Movie> extractJsonResponse(String jsonMovieList) {
+        double averageVotes = 0;
         String title = "";
         String posterPathString = "";
         String releaseDate = "";
         String overview = "";
 
         List<Movie> movieList = new ArrayList<>();
-        try{
+        try {
 
             JSONObject jsonMovie = new JSONObject(jsonMovieList);
-            if (jsonMovie.has(JSON_RESULTS_ARRAY)){
+            if (jsonMovie.has(JSON_RESULTS_ARRAY)) {
                 JSONArray movieResults = jsonMovie.getJSONArray(JSON_RESULTS_ARRAY);
-                for (int i = 0; i<movieResults.length(); i++){
+                for (int i = 0; i < movieResults.length(); i++) {
                     JSONObject currentMovie = movieResults.getJSONObject(i);
-                    if (currentMovie.has(JSON_VOTES_KEY)){
+                    if (currentMovie.has(JSON_VOTES_KEY)) {
                         averageVotes = currentMovie.getDouble(JSON_VOTES_KEY);
-                        Log.v(LOG_TAG,"THIS IS THE USER RATING " + averageVotes);
+                        Log.v(LOG_TAG, "THIS IS THE USER RATING " + averageVotes);
                     }
-                    if (currentMovie.has(JSON_TITLE_KEY)){
+                    if (currentMovie.has(JSON_TITLE_KEY)) {
                         title = currentMovie.getString(JSON_TITLE_KEY);
                     }
-                    if (currentMovie.has(JSON_POSTER_PATH)){
+                    if (currentMovie.has(JSON_POSTER_PATH)) {
                         String posterPathFragment = currentMovie.getString(JSON_POSTER_PATH);
                         posterPathString = buildImageUri(posterPathFragment);
                     }
-                    if (currentMovie.has(JSON_DATE_KEY)){
+                    if (currentMovie.has(JSON_DATE_KEY)) {
                         releaseDate = currentMovie.getString(JSON_DATE_KEY);
                     }
-                    if (currentMovie.has(JSON_OVERVIEW_KEY)){
+                    if (currentMovie.has(JSON_OVERVIEW_KEY)) {
                         overview = currentMovie.getString(JSON_OVERVIEW_KEY);
                     }
-                    Movie movie = new Movie(title,releaseDate,posterPathString,averageVotes,overview);
+                    Movie movie = new Movie(title, releaseDate, posterPathString, averageVotes, overview);
                     movieList.add(movie);
                 }
             }
-        }catch (JSONException e){
-            Log.e(LOG_TAG,"Problem parsing the JSON Response !",e);
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, "Problem parsing the JSON Response !", e);
         }
         return movieList;
     }
 
-    private static String buildImageUri(String posterPath){
+    private static String buildImageUri(String posterPath) {
         String imagePath = POSTER_BASE_URL + POSTER_SIZE + posterPath;
         return imagePath;
     }

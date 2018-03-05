@@ -4,12 +4,12 @@
 
     <item
         android:id="@+id/popular"
-        android:title="Popular"
         android:orderInCategory="1"
+        android:title="@string/menu_title_popular"
         />
     <item
         android:id="@+id/top_rated"
-        android:title="Top Rated"
         android:orderInCategory="2"
+        android:title="@string/menu_title_top_rated"
         />
 </menu>
