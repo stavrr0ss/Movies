@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Movies</string>
+    <string name="no_internet_text">There is no internet connection!</string>
+</resources>

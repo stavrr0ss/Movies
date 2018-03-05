@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="ro.atoming.movies.DetailActivity">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+
+        <ImageView
+            android:id="@+id/detail_movie_poster"
+            android:layout_width="200dp"
+            android:layout_height="300dp"
+            android:scaleType="centerCrop"
+            android:adjustViewBounds="true"
+            android:background="@color/colorPrimaryDark"
+            />
+        <TextView
+            android:id="@+id/movie_title_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Movie Title: "
+            android:padding="@dimen/detail_padding_horizontal"
+            android:layout_below="@+id/detail_movie_poster"/>
+
+        <TextView
+            android:id="@+id/movie_title_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:layout_toRightOf="@+id/movie_title_label"
+            android:padding="@dimen/detail_padding_horizontal"
+            android:layout_marginLeft="12dp"
+            android:layout_below="@+id/detail_movie_poster"
+            android:text="Just taking the space"/>
+        <TextView
+            android:id="@+id/release_date_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/movie_title_label"
+            android:padding="@dimen/detail_padding_horizontal"
+            android:text="Release date: "/>
+        <TextView
+            android:id="@+id/release_date_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/movie_title_tv"
+            android:layout_toRightOf="@+id/release_date_label"
+            android:textSize="14sp"
+            android:text="22.02.2018"
+            android:padding="@dimen/detail_padding_horizontal"
+            android:layout_marginLeft="@dimen/detail_padding_horizontal"/>
+
+        <TextView
+            android:id="@+id/vote_average_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/release_date_label"
+            android:padding="@dimen/detail_padding_horizontal"
+            android:text="Vote average: "/>
+        <TextView
+            android:id="@+id/vote_average_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/release_date_tv"
+            android:layout_toRightOf="@+id/vote_average_label"
+            android:padding="@dimen/detail_padding_horizontal"
+            android:layout_marginLeft="@dimen/detail_padding_horizontal"/>
+        <TextView
+            android:id="@+id/overview_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/vote_average_label"
+            android:text="Overview: "
+            android:padding="@dimen/detail_padding_horizontal"/>
+        <TextView
+            android:id="@+id/overview_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/overview_label"
+            android:padding="@dimen/detail_padding_horizontal"/>
+
+    </RelativeLayout>
+</ScrollView>
