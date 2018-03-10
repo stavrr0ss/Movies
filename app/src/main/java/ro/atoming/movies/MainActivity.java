@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -95,7 +96,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     public Loader<List<Movie>> onCreateLoader(int i, Bundle bundle) {
         String uriReturned = buildMovieUri(PATH_DEFAULT).toString();
+        Log.v(LOG_TAG, "This is the URL : " + uriReturned);
         return new MovieLoader(this, uriReturned);
+
     }
 
     @Override

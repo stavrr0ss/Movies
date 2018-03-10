@@ -69,7 +69,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
             itemView.setOnClickListener(this);
         }
 
-        //TODO CLEAN THE CODE HERE !!!
+
         @Override
         public void onClick(View view) {
             int clickedItem = getAdapterPosition();

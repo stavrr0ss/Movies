@@ -25,7 +25,7 @@ public class NetworkUtils {
     public static final String LOG_TAG = NetworkUtils.class.getSimpleName();
 
     public static final String BASE_URL = "https://api.themoviedb.org/3/movie/";
-    public static final String API_KEY = "";
+    public static final String API_KEY = "50a89c5e64a09dabf5717229df4d5319";
 
     public static final String api_key = "api_key";
 
@@ -33,6 +33,7 @@ public class NetworkUtils {
     public static final String POSTER_SIZE = "w185/";
 
     public static final String JSON_RESULTS_ARRAY = "results";
+    public static final String MOVIE_ID = "id";
     public static final String JSON_VOTES_KEY = "vote_average";
     public static final String JSON_TITLE_KEY = "title";
     public static final String JSON_POSTER_PATH = "poster_path";
@@ -101,6 +102,7 @@ public class NetworkUtils {
 
     public static List<Movie> extractJsonResponse(String jsonMovieList) {
         double averageVotes = 0;
+        int movieId = 0;
         String title = "";
         String posterPathString = "";
         String releaseDate = "";
@@ -114,6 +116,10 @@ public class NetworkUtils {
                 JSONArray movieResults = jsonMovie.getJSONArray(JSON_RESULTS_ARRAY);
                 for (int i = 0; i < movieResults.length(); i++) {
                     JSONObject currentMovie = movieResults.getJSONObject(i);
+                    if (currentMovie.has(MOVIE_ID)) {
+                        movieId = currentMovie.getInt(MOVIE_ID);
+                        Log.v(LOG_TAG, "This is the movie ID: " + movieId);
+                    }
                     if (currentMovie.has(JSON_VOTES_KEY)) {
                         averageVotes = currentMovie.getDouble(JSON_VOTES_KEY);
                         Log.v(LOG_TAG, "THIS IS THE USER RATING " + averageVotes);
@@ -131,7 +137,7 @@ public class NetworkUtils {
                     if (currentMovie.has(JSON_OVERVIEW_KEY)) {
                         overview = currentMovie.getString(JSON_OVERVIEW_KEY);
                     }
-                    Movie movie = new Movie(title, releaseDate, posterPathString, averageVotes, overview);
+                    Movie movie = new Movie(title, releaseDate, posterPathString, averageVotes, overview, movieId);
                     movieList.add(movie);
                 }
             }

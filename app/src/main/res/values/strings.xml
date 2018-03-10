@@ -8,4 +8,5 @@
     <string name="vote_average">Vote average:</string>
     <string name="overview">Overview:</string>
     <string name="image_description">This is the movie poster</string>
+    <string name="detail_activity_label">Movie details</string>
 </resources>

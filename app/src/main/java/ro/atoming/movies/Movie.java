@@ -10,31 +10,33 @@ import android.os.Parcelable;
 
     public class Movie implements Parcelable {
 
+    public static final Creator<Movie> CREATOR = new Creator<Movie>() {
+        @Override
+        public Movie createFromParcel(Parcel in) {
+            return new Movie(in);
+        }
+
+        @Override
+        public Movie[] newArray(int size) {
+            return new Movie[size];
+        }
+    };
         private String mTitle;
         private String mReleaseDate;
+    private int mMovieId;
         private String mPoster;
         private double mUserRating;
         private String mOverview;
 
-        public Movie(String title, String releaseDate, String poster, double userRating, String overview){
+    public Movie(String title, String releaseDate, String poster, double userRating, String overview
+            , int movieId) {
             mTitle = title;
             mReleaseDate = releaseDate;
             mPoster = poster;
             mUserRating = userRating;
             mOverview = overview;
+        mMovieId = movieId;
         }
-
-        public static final Creator<Movie> CREATOR = new Creator<Movie>() {
-            @Override
-            public Movie createFromParcel(Parcel in) {
-                return new Movie(in);
-            }
-
-            @Override
-            public Movie[] newArray(int size) {
-                return new Movie[size];
-            }
-        };
         private Movie(Parcel in){
 
             mTitle = in.readString();
@@ -42,6 +44,7 @@ import android.os.Parcelable;
             mPoster = in.readString();
             mUserRating = in.readDouble();
             mOverview = in.readString();
+            mMovieId = in.readInt();
         }
         @Override
         public int describeContents() {
@@ -55,6 +58,7 @@ import android.os.Parcelable;
             parcel.writeString(mPoster);
             parcel.writeDouble(mUserRating);
             parcel.writeString(mOverview);
+            parcel.writeInt(mMovieId);
         }
 
         public String getTitle(){
@@ -72,6 +76,10 @@ import android.os.Parcelable;
         public String getOverview(){
             return mOverview;
         }
+
+    public int getMovieId() {
+        return mMovieId;
+    }
     }
 
 
