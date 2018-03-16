@@ -15,7 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import ro.atoming.movies.Movie;
+import ro.atoming.movies.models.Movie;
+import ro.atoming.movies.models.Trailer;
 
 /**
  * Created by Bogdan on 3/5/2018.
@@ -32,6 +33,8 @@ public class NetworkUtils {
     public static final String POSTER_BASE_URL = "http://image.tmdb.org/t/p/";
     public static final String POSTER_SIZE = "w185/";
 
+    public static final String TRAILER_PATH = "append_to_response=videos,reviews";
+
     public static final String JSON_RESULTS_ARRAY = "results";
     public static final String MOVIE_ID = "id";
     public static final String JSON_VOTES_KEY = "vote_average";
@@ -39,6 +42,8 @@ public class NetworkUtils {
     public static final String JSON_POSTER_PATH = "poster_path";
     public static final String JSON_OVERVIEW_KEY = "overview";
     public static final String JSON_DATE_KEY = "release_date";
+
+    private static String trailerPathString;
 
     public static List<Movie> searchMovies(String requestUrl) {
         URL url = buildUrl(requestUrl);
@@ -63,7 +68,7 @@ public class NetworkUtils {
         return returnedUrl;
     }
 
-    private static String makeHttpRequest(URL url) throws IOException {
+    public static String makeHttpRequest(URL url) throws IOException {
         HttpURLConnection urlConnection = null;
         String jsonResponse = "";
         InputStream inputStream = null;
@@ -107,6 +112,7 @@ public class NetworkUtils {
         String posterPathString = "";
         String releaseDate = "";
         String overview = "";
+        trailerPathString = "";
 
         List<Movie> movieList = new ArrayList<>();
         try {
@@ -118,11 +124,12 @@ public class NetworkUtils {
                     JSONObject currentMovie = movieResults.getJSONObject(i);
                     if (currentMovie.has(MOVIE_ID)) {
                         movieId = currentMovie.getInt(MOVIE_ID);
-                        Log.v(LOG_TAG, "This is the movie ID: " + movieId);
+                        trailerPathString = buildTrailersReviewsUri(String.valueOf(movieId));
+                        Log.v(LOG_TAG, "This is the trailerPath " + trailerPathString);
+                        //trailerList = extractJsonTrailers(trailerPathString);
                     }
                     if (currentMovie.has(JSON_VOTES_KEY)) {
                         averageVotes = currentMovie.getDouble(JSON_VOTES_KEY);
-                        Log.v(LOG_TAG, "THIS IS THE USER RATING " + averageVotes);
                     }
                     if (currentMovie.has(JSON_TITLE_KEY)) {
                         title = currentMovie.getString(JSON_TITLE_KEY);
@@ -147,8 +154,68 @@ public class NetworkUtils {
         return movieList;
     }
 
+    /**
+     * helper method to extract the trailers keys and reviews from Json
+     */
+    public static Trailer extractJsonTrailers(String jsonTrailers) {
+        Trailer trailer = null;
+        String keyString = "";
+        String trailerName = "";
+        String reviewAuthor = "";
+        String reviewContent = "";
+        String reviewUrl = "";
+        try {
+            JSONObject jsonObject = new JSONObject(jsonTrailers);
+            if (jsonObject.has("videos")) {
+                Log.v(LOG_TAG, "THE MOVIE HAS VIDEOS");
+                JSONObject jsonVideos = jsonObject.getJSONObject("videos");
+
+                if (jsonVideos.has("results")) {
+                    JSONArray videoResults = jsonVideos.getJSONArray("results");
+                    for (int i = 0; i < videoResults.length(); i++) {
+                        JSONObject jsonKey = videoResults.getJSONObject(i);
+                        keyString = jsonKey.getString("key");
+                        Log.v(LOG_TAG, "This is json key string : " + keyString);
+                        trailerName = jsonKey.getString("name");
+                    }
+                }
+            }
+            if (jsonObject.has("reviews")) {
+                JSONObject jsonReviews = jsonObject.getJSONObject("reviews");
+                if (jsonReviews.has("results")) {
+                    JSONArray reviewsResults = jsonReviews.getJSONArray("results");
+                    for (int i = 0; i < reviewsResults.length(); i++) {
+                        JSONObject currentReview = reviewsResults.getJSONObject(i);
+                        reviewAuthor = currentReview.getString("author");
+                        Log.v(LOG_TAG, "This is the author : " + reviewAuthor);
+                        reviewContent = currentReview.getString("content");
+                        reviewUrl = currentReview.getString("url");
+                    }
+                }
+            }
+            trailer = new Trailer(keyString, trailerName, reviewAuthor, reviewContent, reviewUrl);
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, "Problem parsing JSON trailers response !");
+        }
+        return trailer;
+    }
+
     private static String buildImageUri(String posterPath) {
         String imagePath = POSTER_BASE_URL + POSTER_SIZE + posterPath;
         return imagePath;
     }
+
+    /**
+     * helper method used to build the trailers and reviews path
+     */
+    public static String buildTrailersReviewsUri(String movieId) {
+        //Uri trailerUri = Uri.parse(BASE_URL).buildUpon()
+        //         .appendPath(movieId).appendPath(TRAILER_PATH)
+        //        .appendQueryParameter(api_key,API_KEY)
+        //        .build();
+        String trailerPath = BASE_URL + movieId + "?" + api_key + "=" + API_KEY + "&" + TRAILER_PATH;
+        //String trailerPath = trailerUri.toString();
+        return trailerPath;
+    }
+
 }

@@ -12,6 +12,8 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
+import ro.atoming.movies.models.Movie;
+
 /**
  * Created by Bogdan on 3/5/2018.
  */

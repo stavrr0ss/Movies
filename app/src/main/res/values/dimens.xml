@@ -2,8 +2,8 @@
 <resources>
     <dimen name="detail_padding_horizontal">8dp</dimen>
     <dimen name="empty_textView_font_size">22sp</dimen>
-    <dimen name="image_width">200dp</dimen>
-    <dimen name="image_height">300dp</dimen>
+    <dimen name="image_width">150dp</dimen>
+    <dimen name="image_height">200dp</dimen>
     <dimen name="date_font_size">16sp</dimen>
     <dimen name="vote_margin_left">30dp</dimen>
     <dimen name="vertical_layout_margin">100dp</dimen>

@@ -20,6 +20,7 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import ro.atoming.movies.models.Movie;
 import ro.atoming.movies.utils.NetworkUtils;
 
 
