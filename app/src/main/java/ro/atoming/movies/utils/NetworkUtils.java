@@ -174,9 +174,18 @@ public class NetworkUtils {
                     JSONArray videoResults = jsonVideos.getJSONArray("results");
                     for (int i = 0; i < videoResults.length(); i++) {
                         JSONObject jsonKey = videoResults.getJSONObject(i);
-                        keyString = jsonKey.getString("key");
-                        Log.v(LOG_TAG, "This is json key string : " + keyString);
-                        trailerName = jsonKey.getString("name");
+                        if (jsonKey.has("type")) {
+                            String trailerType = jsonKey.getString("type");
+                            if (trailerType.matches("Trailer")) {
+                                if (jsonKey.has("key")) {
+                                    keyString = jsonKey.getString("key");
+                                    Log.v(LOG_TAG, "This is json key string : " + keyString);
+                                }
+                                if (jsonKey.has("name")) {
+                                    trailerName = jsonKey.getString("name");
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -186,10 +195,16 @@ public class NetworkUtils {
                     JSONArray reviewsResults = jsonReviews.getJSONArray("results");
                     for (int i = 0; i < reviewsResults.length(); i++) {
                         JSONObject currentReview = reviewsResults.getJSONObject(i);
-                        reviewAuthor = currentReview.getString("author");
-                        Log.v(LOG_TAG, "This is the author : " + reviewAuthor);
-                        reviewContent = currentReview.getString("content");
-                        reviewUrl = currentReview.getString("url");
+                        if (currentReview.has("author")) {
+                            reviewAuthor = currentReview.getString("author");
+                            Log.v(LOG_TAG, "This is the author : " + reviewAuthor);
+                        }
+                        if (currentReview.has("content")) {
+                            reviewContent = currentReview.getString("content");
+                        }
+                        if (currentReview.has("url")) {
+                            reviewUrl = currentReview.getString("url");
+                        }
                     }
                 }
             }

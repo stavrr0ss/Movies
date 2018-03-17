@@ -81,7 +81,9 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/detail_movie_poster"
             android:padding="@dimen/detail_padding_horizontal"
-            android:text="@string/overview" />
+            android:text="@string/overview"
+            android:textSize="@dimen/date_font_size"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/overview_tv"
@@ -121,7 +123,9 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/trailer_layout"
             android:padding="@dimen/detail_padding_horizontal"
-            android:text="Reviews :" />
+            android:text="Reviews :"
+            android:textSize="@dimen/date_font_size"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/review_content"
@@ -135,7 +139,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/review_content"
-            android:padding="@dimen/detail_padding_horizontal" />
+            android:padding="@dimen/detail_padding_horizontal"
+            android:textStyle="italic" />
 
         <ImageView
             android:id="@+id/link_icon"
@@ -144,7 +149,8 @@
             android:layout_alignParentRight="true"
             android:layout_below="@+id/review_content"
             android:padding="@dimen/detail_padding_horizontal"
-            android:src="@drawable/ic_link" />
+            android:src="@drawable/ic_link"
+            android:visibility="invisible" />
 
     </RelativeLayout>
 

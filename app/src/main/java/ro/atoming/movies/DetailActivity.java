@@ -8,6 +8,7 @@ import android.content.Loader;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -42,7 +43,9 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
     private String mTrailerNameString;
     private String mTrailerKey;
     private String mReviewLink;
-    //public final String TRAILER_URL = TRAILER_BASE_URL + mTrailerKey;
+    private String mReviewAuthorString;
+    private String mReviewContentString;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,6 +100,7 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
                 startActivity(reviewIntent);
             }
         });
+        mReviewLinkImage.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -108,11 +112,26 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
     public void onLoadFinished(Loader<Trailer> loader, Trailer trailer) {
         mTrailerNameString = "Trailer name: " + trailer.getName();
         mTrailerName.setText(mTrailerNameString);
-
-        mReviewContent.setText(trailer.getContent());
-        mReviewAuthor.setText(trailer.getAuthor());
+        //extract the review author and set the text
+        mReviewAuthorString = trailer.getAuthor();
+        if (!TextUtils.isEmpty(mReviewAuthorString)) {
+            mReviewAuthor.setText(mReviewAuthorString);
+        } else {
+            mReviewAuthor.setText("No authors available.");
+        }
+        //extract the review content and set the text
+        mReviewContentString = trailer.getContent();
+        if (!TextUtils.isEmpty(mReviewContentString)) {
+            mReviewContent.setText(mReviewContentString);
+        } else {
+            mReviewContent.setText("No reviews available.");
+        }
         mTrailerKey = trailer.getKey();
         mReviewLink = trailer.getReviewUrl();
+        Log.v(LOG_TAG, "This is the REVIEW LINK:" + mReviewLink);
+        if (TextUtils.isEmpty(mReviewLink)) {
+            mReviewLinkImage.setVisibility(View.INVISIBLE);
+        }
     }
 
     @Override
