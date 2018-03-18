@@ -18,6 +18,8 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.facebook.stetho.Stetho;
+
 import java.util.List;
 
 import ro.atoming.movies.models.Movie;
@@ -43,6 +45,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Stetho.initializeWithDefaults(this);
 
         mRecyclerview = findViewById(R.id.recyclerView);
         mProgressBar = findViewById(R.id.progressBar);

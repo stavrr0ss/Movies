@@ -45,6 +45,7 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
     private String mReviewLink;
     private String mReviewAuthorString;
     private String mReviewContentString;
+    private String mShortReview;
 
 
     @Override
@@ -122,7 +123,7 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
         //extract the review content and set the text
         mReviewContentString = trailer.getContent();
         if (!TextUtils.isEmpty(mReviewContentString)) {
-            mReviewContent.setText(mReviewContentString);
+            mReviewContent.setText(getShortReview(mReviewContentString));
         } else {
             mReviewContent.setText("No reviews available.");
         }
@@ -137,6 +138,13 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
     @Override
     public void onLoaderReset(Loader<Trailer> loader) {
 
+    }
+
+    private String getShortReview(String review) {
+        if (review.length() > 200) {
+            mShortReview = review.substring(0, 200) + "...";
+        }
+        return mShortReview;
     }
 
     private static class TrailerLoader extends AsyncTaskLoader<Trailer> {
