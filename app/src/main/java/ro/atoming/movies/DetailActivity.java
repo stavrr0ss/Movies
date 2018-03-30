@@ -2,23 +2,30 @@ package ro.atoming.movies;
 
 import android.app.LoaderManager;
 import android.content.AsyncTaskLoader;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.net.URL;
 
+import ro.atoming.movies.data.MovieContract;
+import ro.atoming.movies.data.MovieDbHelper;
 import ro.atoming.movies.models.Movie;
 import ro.atoming.movies.models.Trailer;
 import ro.atoming.movies.utils.NetworkUtils;
@@ -28,6 +35,7 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
     public static final String LOG_TAG = DetailActivity.class.getSimpleName();
     public static final int LOADER_ID = 33;
     public static final String TRAILER_BASE_URL = "http://www.youtube.com/watch?v=";
+    public static final int REVIEW_LENGTH = 200;
     private static String mMovieId;
     private Context mContext;
     private ImageView mPoster;
@@ -40,18 +48,24 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
     private TextView mReviewAuthor;
     private TextView mReviewContent;
     private ImageView mReviewLinkImage;
+    private ImageView mFavoriteImage;
+    private Button mFavoriteButton;
     private String mTrailerNameString;
     private String mTrailerKey;
     private String mReviewLink;
     private String mReviewAuthorString;
     private String mReviewContentString;
     private String mShortReview;
+    private String mMovieTitle;
+    private String mPosterString;
+    private MovieDbHelper mMovieHelper;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
+        mMovieHelper = new MovieDbHelper(getApplicationContext());
 
         mTitle = findViewById(R.id.movie_title_tv);
         mPoster = findViewById(R.id.detail_movie_poster);
@@ -64,14 +78,18 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
         mReviewAuthor = findViewById(R.id.review_author);
         mReviewContent = findViewById(R.id.review_content);
         mReviewLinkImage = findViewById(R.id.link_icon);
+        mFavoriteButton = findViewById(R.id.add_fav_button);
+        mFavoriteImage = findViewById(R.id.favorite_image);
 
 
         Intent intent = getIntent();
 
         Movie currentMovie = intent.getParcelableExtra(getString(R.string.parcel_reference_movie));
-        mTitle.setText(currentMovie.getTitle());
+        mMovieTitle = currentMovie.getTitle();
+        mTitle.setText(mMovieTitle);
         //set the image
-        Picasso.with(mContext).load(currentMovie.getPoster()).into(mPoster);
+        mPosterString = currentMovie.getPoster();
+        Picasso.with(mContext).load(mPosterString).into(mPoster);
         mReleaseDate.setText(currentMovie.getReleaseDate());
         //converting double to String
         double userVotes = currentMovie.getUserRating();
@@ -79,7 +97,7 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
         mVoteAverage.setText(userRating);
         //set the overview of the movie
         mOverview.setText(currentMovie.getOverview());
-        int movieId = currentMovie.getMovieId();
+        final int movieId = currentMovie.getMovieId();
         mMovieId = Integer.toString(movieId);
 
         LoaderManager loaderManager = getLoaderManager();
@@ -102,6 +120,20 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
             }
         });
         mReviewLinkImage.setVisibility(View.VISIBLE);
+        if (addedToFavorite(mMovieId)) {
+            mFavoriteImage.setBackgroundColor(getResources().getColor(R.color.colorAccent));
+            mFavoriteButton.setText(getResources().getString(R.string.fav_button_remove_text));
+        }
+        mFavoriteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (!addedToFavorite(mMovieId)) {
+                    addMovieToFavorite();
+                } else {
+                    deleteMovieFromDb(mMovieId);
+                }
+            }
+        });
     }
 
     @Override
@@ -140,11 +172,62 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
 
     }
 
+    /**
+     * This method is used to shorten the reviws longer than 200 characters
+     */
     private String getShortReview(String review) {
-        if (review.length() > 200) {
-            mShortReview = review.substring(0, 200) + "...";
+        if (review.length() > REVIEW_LENGTH) {
+            mShortReview = review.substring(0, REVIEW_LENGTH) + "...";
         }
         return mShortReview;
+    }
+
+    /**
+     * method used to check if the movie is already in the Database, giving its ID
+     */
+    private boolean addedToFavorite(String currentMovieId) {
+        String selection = MovieContract.MovieEntry.COLUMN_MOVIE_ID + "=?";
+        String[] selectionArgs = new String[]{currentMovieId};
+        SQLiteDatabase db = mMovieHelper.getReadableDatabase();
+        Cursor cursor = db.query(MovieContract.MovieEntry.TABLE_NAME,
+                null,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null);
+        boolean addedMovie = (cursor.getCount() > 0);
+        cursor.close();
+        db.close();
+        return addedMovie;
+    }
+
+    /**
+     * this method is used to insert the movie into the Database
+     */
+    private void addMovieToFavorite() {
+        ContentValues values = new ContentValues();
+        values.put(MovieContract.MovieEntry.COLUMN_TITLE, mMovieTitle);
+        Log.v(LOG_TAG, "This is the value of movieTitle " + mMovieTitle);
+        values.put(MovieContract.MovieEntry.COLUMN_MOVIE_ID, mMovieId);
+        values.put(MovieContract.MovieEntry.COLUMN_POSTER, mPosterString);
+        Log.v(LOG_TAG, "This is the poster path string : " + mPosterString);
+        getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, values);
+        mFavoriteImage.setBackgroundColor(getResources().getColor(R.color.colorAccent));
+    }
+
+    private void deleteMovieFromDb(String currentMovieId) {
+        SQLiteDatabase db = mMovieHelper.getWritableDatabase();
+        String selection = MovieContract.MovieEntry.COLUMN_MOVIE_ID + "=?";
+        String[] selectionArgs = new String[]{currentMovieId};
+        int rowsDeleted = db.delete(MovieContract.MovieEntry.TABLE_NAME, selection, selectionArgs);
+        //getContentResolver().delete(MovieContract.MovieEntry.CONTENT_URI,selection,selectionArgs);
+        if (rowsDeleted != 0) {
+            Toast.makeText(DetailActivity.this, "Movie removed from Favorites!", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(DetailActivity.this, "Problem removing movie from Favorites!", Toast.LENGTH_SHORT).show();
+        }
+        finish();
     }
 
     private static class TrailerLoader extends AsyncTaskLoader<Trailer> {

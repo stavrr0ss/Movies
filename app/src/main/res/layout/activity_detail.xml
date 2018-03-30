@@ -52,6 +52,25 @@
             android:textColor="@color/colorAccent"
             android:textSize="@dimen/date_font_size" />
 
+        <ImageView
+            android:id="@+id/favorite_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/movie_title_tv"
+            android:layout_marginStart="50dp"
+            android:layout_toEndOf="@+id/release_date_label"
+            android:src="@drawable/ic_stars" />
+
+        <Button
+            android:id="@+id/add_fav_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/favorite_image"
+            android:layout_marginLeft="20dp"
+            android:layout_toRightOf="@+id/vote_average_label"
+            android:clickable="true"
+            android:text="Favorite" />
+
         <TextView
             android:id="@+id/vote_average_label"
             android:layout_width="wrap_content"

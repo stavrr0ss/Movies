@@ -21,10 +21,7 @@ public class MovieContract {
         public static final String TABLE_NAME = "movies";
         public static final String _ID = BaseColumns._ID;
         public static final String COLUMN_TITLE = "title";
-        public static final String COLUMN_RELEASE_DATE = "date";
         public static final String COLUMN_POSTER = "poster";
-        public static final String COLUMN_USER_RATING = "rating";
-        public static final String COLUMN_OVERVIEW = "overview";
         public static final String COLUMN_MOVIE_ID = "movieId";
 
         public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_MOVIE);

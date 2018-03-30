@@ -9,4 +9,5 @@
     <string name="overview">Overview:</string>
     <string name="image_description">This is the movie poster</string>
     <string name="detail_activity_label">Movie details</string>
+    <string name="fav_button_remove_text">Remove</string>
 </resources>

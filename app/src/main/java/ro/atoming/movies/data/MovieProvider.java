@@ -97,14 +97,14 @@ public class MovieProvider extends ContentProvider {
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues contentValues) {
         final SQLiteDatabase db = mMovieHelper.getWritableDatabase();
-        Uri returnuri;//this the uri to be returned.
+        Uri returnUri;//this the uri to be returned.
         int match = sUriMatcher.match(uri);
 
         switch (match) {
             case MOVIES:
                 long id = db.insert(MovieEntry.TABLE_NAME, null, contentValues);
                 if (id > 0) {
-                    returnuri = ContentUris.withAppendedId(MovieEntry.CONTENT_URI, id);
+                    returnUri = ContentUris.withAppendedId(MovieEntry.CONTENT_URI, id);
                 } else {
                     throw new SQLException("Failed to insert row " + uri);
                 }
@@ -113,7 +113,7 @@ public class MovieProvider extends ContentProvider {
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
         getContext().getContentResolver().notifyChange(uri, null);
-        return returnuri;
+        return returnUri;
     }
 
     /**
