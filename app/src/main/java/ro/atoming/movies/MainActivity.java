@@ -169,64 +169,30 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 null);
     }
 
-    /**
-     @Override public Loader<List<Movie>> onCreateLoader(int i, Bundle bundle) {
-     String uriReturned = buildMovieUri(PATH_DEFAULT).toString();
-     Log.v(LOG_TAG, "This is the URL : " + uriReturned);
-     return new MovieLoader(this, uriReturned);
-     }
-     */
-
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         mCursorAdapter.swapCursor(cursor);
     }
+
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         mCursorAdapter.swapCursor(null);
     }
 
-    /**
-     @Override public void onLoadFinished(Loader<List<Movie>> loader, List<Movie> movieList) {
-
-     mProgressBar.setVisibility(View.GONE);
-     if (movieList != null && !movieList.isEmpty()) {
-     mAdapter.setData(movieList);
-     }
-     }
-
-
-     @Override public void onLoaderReset(Loader<List<Movie>> loader) {
-     }
-     */
     @Override
     public void onListItemClick(int clickedItem) {
     }
 
-    /**
-     private static class MovieLoader extends AsyncTaskLoader<List<Movie>> {
+    //@Override
+    //public void onFavoriteListItemClick(int clickedItem) {
+    //long id = mCursorAdapter.getItemId(clickedItem);
+    //Uri currentMovie = ContentUris.withAppendedId(MovieContract.MovieEntry.CONTENT_URI,id);
+    //Intent intent = new Intent(MainActivity.this,DetailActivity.class);
+    //intent.setData(currentMovie);
+    //startActivity(intent);
+    //}
 
-     private String mUrl;
-
-     public MovieLoader(Context context, String url) {
-     super(context);
-     mUrl = url;
-     }
-
-     @Override protected void onStartLoading() {
-     forceLoad();
-     }
-
-     @Override public List<Movie> loadInBackground() {
-     if (mUrl == null) {
-     return null;
-     }
-     List<Movie> movies = NetworkUtils.searchMovies(mUrl);
-     return movies;
-     }
-     }
-     */
     private class ShowMoviesTask extends AsyncTask<URL, Void, List<Movie>> {
         List<Movie> movies = new ArrayList<>();
 

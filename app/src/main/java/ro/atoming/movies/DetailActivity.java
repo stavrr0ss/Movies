@@ -1,14 +1,15 @@
 package ro.atoming.movies;
 
 import android.app.LoaderManager;
-import android.content.AsyncTaskLoader;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -30,7 +31,7 @@ import ro.atoming.movies.models.Movie;
 import ro.atoming.movies.models.Trailer;
 import ro.atoming.movies.utils.NetworkUtils;
 
-public class DetailActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Trailer> {
+public class DetailActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     public static final String LOG_TAG = DetailActivity.class.getSimpleName();
     public static final int LOADER_ID = 33;
@@ -59,6 +60,7 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
     private String mMovieTitle;
     private String mPosterString;
     private MovieDbHelper mMovieHelper;
+    private Uri mUri;
 
 
     @Override
@@ -83,25 +85,31 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
 
 
         Intent intent = getIntent();
+        String type = intent.getType();
+        if (intent.hasExtra(getString(R.string.parcel_reference_movie))) {
 
-        Movie currentMovie = intent.getParcelableExtra(getString(R.string.parcel_reference_movie));
-        mMovieTitle = currentMovie.getTitle();
-        mTitle.setText(mMovieTitle);
-        //set the image
-        mPosterString = currentMovie.getPoster();
-        Picasso.with(mContext).load(mPosterString).into(mPoster);
-        mReleaseDate.setText(currentMovie.getReleaseDate());
-        //converting double to String
-        double userVotes = currentMovie.getUserRating();
-        String userRating = Double.toString(userVotes);
-        mVoteAverage.setText(userRating);
-        //set the overview of the movie
-        mOverview.setText(currentMovie.getOverview());
-        final int movieId = currentMovie.getMovieId();
-        mMovieId = Integer.toString(movieId);
-
-        LoaderManager loaderManager = getLoaderManager();
-        loaderManager.initLoader(LOADER_ID, null, this);
+            Movie currentMovie = intent.getParcelableExtra(getString(R.string.parcel_reference_movie));
+            mMovieTitle = currentMovie.getTitle();
+            mTitle.setText(mMovieTitle);
+            //set the image
+            mPosterString = currentMovie.getPoster();
+            Picasso.with(mContext).load(mPosterString).into(mPoster);
+            mReleaseDate.setText(currentMovie.getReleaseDate());
+            //converting double to String
+            double userVotes = currentMovie.getUserRating();
+            String userRating = Double.toString(userVotes);
+            mVoteAverage.setText(userRating);
+            //set the overview of the movie
+            mOverview.setText(currentMovie.getOverview());
+            final int movieId = currentMovie.getMovieId();
+            mMovieId = Integer.toString(movieId);
+        } else if (intent.hasExtra("movieUri")) {
+            mUri = intent.getData();
+            LoaderManager loaderManager = getLoaderManager();
+            loaderManager.initLoader(LOADER_ID, null, this);
+        }
+        TrailerTask trailerTask = new TrailerTask();
+        trailerTask.execute();
 
         mPlayTrailer.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -136,44 +144,39 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
         });
     }
 
-    @Override
-    public Loader<Trailer> onCreateLoader(int i, Bundle bundle) {
-        return new TrailerLoader(this);
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Trailer> loader, Trailer trailer) {
-        mTrailerNameString = "Trailer name: " + trailer.getName();
-        mTrailerName.setText(mTrailerNameString);
-        //extract the review author and set the text
-        mReviewAuthorString = trailer.getAuthor();
-        if (!TextUtils.isEmpty(mReviewAuthorString)) {
-            mReviewAuthor.setText(mReviewAuthorString);
-        } else {
-            mReviewAuthor.setText("No authors available.");
-        }
-        //extract the review content and set the text
-        mReviewContentString = trailer.getContent();
-        if (!TextUtils.isEmpty(mReviewContentString)) {
-            mReviewContent.setText(getShortReview(mReviewContentString));
-        } else {
-            mReviewContent.setText("No reviews available.");
-        }
-        mTrailerKey = trailer.getKey();
-        mReviewLink = trailer.getReviewUrl();
-        Log.v(LOG_TAG, "This is the REVIEW LINK:" + mReviewLink);
-        if (TextUtils.isEmpty(mReviewLink)) {
-            mReviewLinkImage.setVisibility(View.INVISIBLE);
-        }
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Trailer> loader) {
-
-    }
-
     /**
-     * This method is used to shorten the reviws longer than 200 characters
+     @Override public Loader<Trailer> onCreateLoader(int i, Bundle bundle) {
+     return new TrailerLoader(this);
+     }
+
+     @Override public void onLoadFinished(Loader<Trailer> loader, Trailer trailer) {
+     mTrailerNameString = "Trailer name: " + trailer.getName();
+     mTrailerName.setText(mTrailerNameString);
+     //extract the review author and set the text
+     mReviewAuthorString = trailer.getAuthor();
+     if (!TextUtils.isEmpty(mReviewAuthorString)) {
+     mReviewAuthor.setText(mReviewAuthorString);
+     } else {
+     mReviewAuthor.setText("No authors available.");
+     }
+     //extract the review content and set the text
+     mReviewContentString = trailer.getContent();
+     if (!TextUtils.isEmpty(mReviewContentString)) {
+     mReviewContent.setText(getShortReview(mReviewContentString));
+     } else {
+     mReviewContent.setText("No reviews available.");
+     }
+     mTrailerKey = trailer.getKey();
+     mReviewLink = trailer.getReviewUrl();
+     Log.v(LOG_TAG, "This is the REVIEW LINK:" + mReviewLink);
+     if (TextUtils.isEmpty(mReviewLink)) {
+     mReviewLinkImage.setVisibility(View.INVISIBLE);
+     }
+     }
+
+
+     /**
+      * This method is used to shorten the reviws longer than 200 characters
      */
     private String getShortReview(String review) {
         if (review.length() > REVIEW_LENGTH) {
@@ -230,20 +233,73 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
         finish();
     }
 
-    private static class TrailerLoader extends AsyncTaskLoader<Trailer> {
+    @Override
+    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+        String[] projection = {
+                MovieContract.MovieEntry._ID,
+                MovieContract.MovieEntry.COLUMN_TITLE,
+                MovieContract.MovieEntry.COLUMN_MOVIE_ID,
+                MovieContract.MovieEntry.COLUMN_POSTER};
+        return new CursorLoader(this,
+                mUri,
+                projection,
+                null,
+                null,
+                null);
+    }
 
-        public TrailerLoader(Context context) {
-            super(context);
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        if (cursor == null || cursor.getCount() < 1) {
+            return;
         }
+        if (cursor.moveToFirst()) {
+            int movieIdIndex = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_MOVIE_ID);
+            int movieTitleIndex = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_TITLE);
+            int moviePosterIndex = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_POSTER);
+
+            mPosterString = cursor.getString(moviePosterIndex);
+            mMovieId = cursor.getString(movieIdIndex);
+            mMovieTitle = cursor.getString(movieTitleIndex);
+            mTitle.setText(mMovieTitle);
+            Picasso.with(getApplicationContext()).load(mPosterString).into(mPoster);
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+
+    }
+
+    /**
+     private static class TrailerLoader extends AsyncTaskLoader<Trailer> {
+
+     public TrailerLoader(Context context) {
+     super(context);
+     }
+
+     @Override protected void onStartLoading() {
+     super.onStartLoading();
+     forceLoad();
+     }
+
+     @Override public Trailer loadInBackground() {
+     URL url = NetworkUtils.buildUrl(NetworkUtils.buildTrailersReviewsUri(mMovieId));
+     String jsonResponse = "";
+     try {
+     jsonResponse = NetworkUtils.makeHttpRequest(url);
+     } catch (IOException e) {
+     Log.e(LOG_TAG, "Problem with HTTP response !", e);
+     }
+     ro.atoming.movies.models.Trailer currentTrailer = NetworkUtils.extractJsonTrailers(jsonResponse);
+     return currentTrailer;
+     }
+     }
+     */
+    private class TrailerTask extends AsyncTask<URL, Void, Trailer> {
 
         @Override
-        protected void onStartLoading() {
-            super.onStartLoading();
-            forceLoad();
-        }
-
-        @Override
-        public Trailer loadInBackground() {
+        protected Trailer doInBackground(URL... urls) {
             URL url = NetworkUtils.buildUrl(NetworkUtils.buildTrailersReviewsUri(mMovieId));
             String jsonResponse = "";
             try {
@@ -253,6 +309,33 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
             }
             Trailer currentTrailer = NetworkUtils.extractJsonTrailers(jsonResponse);
             return currentTrailer;
+        }
+
+        @Override
+        protected void onPostExecute(Trailer trailer) {
+            super.onPostExecute(trailer);
+            mTrailerNameString = "Trailer name: " + trailer.getName();
+            mTrailerName.setText(mTrailerNameString);
+            //extract the review author and set the text
+            mReviewAuthorString = trailer.getAuthor();
+            if (!TextUtils.isEmpty(mReviewAuthorString)) {
+                mReviewAuthor.setText(mReviewAuthorString);
+            } else {
+                mReviewAuthor.setText("No authors available.");
+            }
+            //extract the review content and set the text
+            mReviewContentString = trailer.getContent();
+            if (!TextUtils.isEmpty(mReviewContentString)) {
+                mReviewContent.setText(getShortReview(mReviewContentString));
+            } else {
+                mReviewContent.setText("No reviews available.");
+            }
+            mTrailerKey = trailer.getKey();
+            mReviewLink = trailer.getReviewUrl();
+            Log.v(LOG_TAG, "This is the REVIEW LINK:" + mReviewLink);
+            if (TextUtils.isEmpty(mReviewLink)) {
+                mReviewLinkImage.setVisibility(View.INVISIBLE);
+            }
         }
     }
 }

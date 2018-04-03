@@ -1,7 +1,6 @@
 package ro.atoming.movies;
 
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -26,9 +25,10 @@ public class MovieCursorAdapter extends RecyclerView.Adapter<MovieCursorAdapter.
     private Cursor mCursor;
     private Context mContext;
 
-    //public interface ListItemClickListener {
-    //    void onListItemClick(int clickedItem);
+    //public interface FavoriteListItemClickListener {
+    //void onFavoriteListItemClick(int clickedItem);
     //}
+
 
     public MovieCursorAdapter(Context context, Cursor cursor, MovieAdapter.ListItemClickListener listItemClickListener) {
         //mMovieList = movieList;
@@ -87,12 +87,10 @@ public class MovieCursorAdapter extends RecyclerView.Adapter<MovieCursorAdapter.
         @Override
         public void onClick(View view) {
             int clickedItem = getAdapterPosition();
-            Movie movie = mMovieList.get(clickedItem);
-            int movieId = movie.getMovieId();
-            String movieIdString = String.valueOf(movieId);
-            Intent intent = new Intent(mContext, DetailActivity.class);
-            intent.putExtra("movieId", movieIdString);
-            mContext.startActivity(intent);
+            //Uri curentMovieUri = ContentUris.withAppendedId(MovieContract.MovieEntry.CONTENT_URI,clickedItem);
+            //Intent intent = new Intent(mContext, DetailActivity.class);
+            //intent.putExtra("movieUri",curentMovieUri);
+            //mContext.startActivity(intent);
             mListItemClickListener.onListItemClick(clickedItem);
         }
     }

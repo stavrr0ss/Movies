@@ -76,7 +76,9 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         public void onClick(View view) {
             int clickedItem = getAdapterPosition();
             Movie movie = mMovieList.get(clickedItem);
+            //Uri curentMovieUri = ContentUris.withAppendedId(MovieContract.MovieEntry.CONTENT_URI,clickedItem);
             Intent intent = new Intent(mContext, DetailActivity.class);
+            //intent.putExtra("movieUri",curentMovieUri);
             intent.putExtra("movie", movie);
             mContext.startActivity(intent);
             mListItemClickListener.onListItemClick(clickedItem);
