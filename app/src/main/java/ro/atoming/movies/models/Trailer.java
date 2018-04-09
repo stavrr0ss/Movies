@@ -11,7 +11,6 @@ public class Trailer {
     private String mContent;
     private String mReviewUrl;
 
-
     public Trailer(String key, String name, String author, String content, String reviewUrl) {
         mKey = key;
         mName = name;

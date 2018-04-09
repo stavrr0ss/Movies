@@ -16,10 +16,13 @@ public class MovieDbHelper extends SQLiteOpenHelper {
             MovieEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
             MovieEntry.COLUMN_TITLE + " TEXT ," +
             MovieEntry.COLUMN_MOVIE_ID + " TEXT ," +
+            MovieEntry.COLUMN_RELEASE_DATE + " TEXT ," +
+            MovieEntry.COLUMN_VOTE_AVERAGE + " INTEGER ," +
+            MovieEntry.COLUMN_OVERVIEW + " TEXT ," +
             MovieEntry.COLUMN_POSTER + " TEXT );";
 
     private static final String DATABASE_NAME = "movies.db";
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
 
     public MovieDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);

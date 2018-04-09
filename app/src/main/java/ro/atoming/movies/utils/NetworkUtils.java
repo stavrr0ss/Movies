@@ -26,7 +26,7 @@ public class NetworkUtils {
     public static final String LOG_TAG = NetworkUtils.class.getSimpleName();
 
     public static final String BASE_URL = "https://api.themoviedb.org/3/movie/";
-    public static final String API_KEY = "50a89c5e64a09dabf5717229df4d5319";
+    public static final String API_KEY = "";
 
     public static final String api_key = "api_key";
 
@@ -224,12 +224,7 @@ public class NetworkUtils {
      * helper method used to build the trailers and reviews path
      */
     public static String buildTrailersReviewsUri(String movieId) {
-        //Uri trailerUri = Uri.parse(BASE_URL).buildUpon()
-        //         .appendPath(movieId).appendPath(TRAILER_PATH)
-        //        .appendQueryParameter(api_key,API_KEY)
-        //        .build();
         String trailerPath = BASE_URL + movieId + "?" + api_key + "=" + API_KEY + "&" + TRAILER_PATH;
-        //String trailerPath = trailerUri.toString();
         return trailerPath;
     }
 

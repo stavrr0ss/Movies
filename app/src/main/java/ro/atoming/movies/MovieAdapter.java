@@ -60,7 +60,6 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     }
 
     public class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-
         ImageView poster;
         MovieAdapter mAdapter;
 
@@ -71,14 +70,11 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
             itemView.setOnClickListener(this);
         }
 
-
         @Override
         public void onClick(View view) {
             int clickedItem = getAdapterPosition();
             Movie movie = mMovieList.get(clickedItem);
-            //Uri curentMovieUri = ContentUris.withAppendedId(MovieContract.MovieEntry.CONTENT_URI,clickedItem);
             Intent intent = new Intent(mContext, DetailActivity.class);
-            //intent.putExtra("movieUri",curentMovieUri);
             intent.putExtra("movie", movie);
             mContext.startActivity(intent);
             mListItemClickListener.onListItemClick(clickedItem);

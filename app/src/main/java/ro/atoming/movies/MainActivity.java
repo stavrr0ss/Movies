@@ -10,7 +10,6 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -46,6 +45,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private List<Movie> mMovieList;
     private ProgressBar mProgressBar;
     private TextView mEmptyTextView;
+    private Cursor mCursor;
 
     /**
      * helper method for building the Uri used to query the MovieDb
@@ -70,8 +70,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         if (isConnected()) {
             ShowMoviesTask showPopularMovies = new ShowMoviesTask();
             showPopularMovies.execute();
-            //LoaderManager loaderManager = getLoaderManager();
-            //loaderManager.initLoader(TASK_LOADER_ID, null, this);
         } else {
             mProgressBar.setVisibility(View.GONE);
             mEmptyTextView.setText(R.string.no_internet_text);
@@ -80,16 +78,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         mRecyclerview.setAdapter(mAdapter);
         mRecyclerview.setLayoutManager(new GridLayoutManager(this, SPAN_COUNT));
         mRecyclerview.setHasFixedSize(true);
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
-        super.onSaveInstanceState(outState, outPersistentState);
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
     }
 
     @Override
@@ -140,7 +128,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private void showFavoriteMovies() {
         LoaderManager loaderManager = getLoaderManager();
         loaderManager.initLoader(TASK_LOADER_ID, null, this);
-        mCursorAdapter = new MovieCursorAdapter(this, null, this);
+        mCursorAdapter = new MovieCursorAdapter(this, mCursor, this);
         mRecyclerview.setAdapter(mCursorAdapter);
         mRecyclerview.setLayoutManager(new GridLayoutManager(this, SPAN_COUNT));
         mRecyclerview.setHasFixedSize(true);
@@ -159,7 +147,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         String[] projection = {MovieContract.MovieEntry._ID,
                 MovieContract.MovieEntry.COLUMN_POSTER,
                 MovieContract.MovieEntry.COLUMN_MOVIE_ID,
-                MovieContract.MovieEntry.COLUMN_TITLE
+                MovieContract.MovieEntry.COLUMN_TITLE,
+                MovieContract.MovieEntry.COLUMN_RELEASE_DATE,
+                MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE,
+                MovieContract.MovieEntry.COLUMN_OVERVIEW
         };
         return new CursorLoader(this,
                 MovieContract.MovieEntry.CONTENT_URI,
@@ -174,7 +165,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         mCursorAdapter.swapCursor(cursor);
     }
 
-
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         mCursorAdapter.swapCursor(null);
@@ -183,15 +173,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     public void onListItemClick(int clickedItem) {
     }
-
-    //@Override
-    //public void onFavoriteListItemClick(int clickedItem) {
-    //long id = mCursorAdapter.getItemId(clickedItem);
-    //Uri currentMovie = ContentUris.withAppendedId(MovieContract.MovieEntry.CONTENT_URI,id);
-    //Intent intent = new Intent(MainActivity.this,DetailActivity.class);
-    //intent.setData(currentMovie);
-    //startActivity(intent);
-    //}
 
     private class ShowMoviesTask extends AsyncTask<URL, Void, List<Movie>> {
         List<Movie> movies = new ArrayList<>();

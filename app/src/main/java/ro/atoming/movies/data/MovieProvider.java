@@ -116,20 +116,6 @@ public class MovieProvider extends ContentProvider {
         return returnUri;
     }
 
-    /**
-     * private Uri insertProduct(Uri uri, ContentValues values){
-     * SQLiteDatabase db = mMovieHelper.getWritableDatabase();
-     * String movieTitle = values.getAsString(MovieContract.MovieEntry.COLUMN_TITLE);
-     * if (movieTitle == null){
-     * throw new IllegalArgumentException("Movie needs a title !");
-     * }
-     * int movieId = values.getAsInteger(MovieContract.MovieEntry.COLUMN_MOVIE_ID);
-     * <p>
-     * long id = db.insert(MovieContract.MovieEntry.TABLE_NAME,null,values);
-     * <p>
-     * }
-     */
-
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
         SQLiteDatabase db = mMovieHelper.getWritableDatabase();
