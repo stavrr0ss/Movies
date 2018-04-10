@@ -10,6 +10,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -39,13 +40,17 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     public static final String PATH_POPULAR = "popular";
     public static final String PATH_TOP_RATED = "top_rated";
     private static String PATH_DEFAULT = PATH_POPULAR;
+    private static Context mContext;
     private static MovieAdapter mAdapter;
     private RecyclerView mRecyclerview;
     private MovieCursorAdapter mCursorAdapter;
     private List<Movie> mMovieList;
     private ProgressBar mProgressBar;
     private TextView mEmptyTextView;
+    private String SAVED_LAYOUT_MANAGER = "curentLayout";
+    private Parcelable layoutManagerSavedState;
     private Cursor mCursor;
+
 
     /**
      * helper method for building the Uri used to query the MovieDb
@@ -62,14 +67,16 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Stetho.initializeWithDefaults(this);
-
         mRecyclerview = findViewById(R.id.recyclerView);
         mProgressBar = findViewById(R.id.progressBar);
         mEmptyTextView = findViewById(R.id.emptyTextView);
-
+        if (savedInstanceState != null) {
+            layoutManagerSavedState = savedInstanceState.getParcelable(SAVED_LAYOUT_MANAGER);
+        }
         if (isConnected()) {
             ShowMoviesTask showPopularMovies = new ShowMoviesTask();
             showPopularMovies.execute();
+            mEmptyTextView.setVisibility(View.GONE);
         } else {
             mProgressBar.setVisibility(View.GONE);
             mEmptyTextView.setText(R.string.no_internet_text);
@@ -78,7 +85,29 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         mRecyclerview.setAdapter(mAdapter);
         mRecyclerview.setLayoutManager(new GridLayoutManager(this, SPAN_COUNT));
         mRecyclerview.setHasFixedSize(true);
+        mRecyclerview.getLayoutManager().onRestoreInstanceState(layoutManagerSavedState);
     }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(SAVED_LAYOUT_MANAGER, mRecyclerview.getLayoutManager().onSaveInstanceState());
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        if (savedInstanceState instanceof Bundle) {
+            layoutManagerSavedState = savedInstanceState.getParcelable(SAVED_LAYOUT_MANAGER);
+        }
+        super.onRestoreInstanceState(savedInstanceState);
+    }
+
+    public void restoreLayoutManagerPosition() {
+        if (layoutManagerSavedState != null) {
+            mRecyclerview.getLayoutManager().onRestoreInstanceState(layoutManagerSavedState);
+        }
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -191,6 +220,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             mProgressBar.setVisibility(View.GONE);
             if (movies != null && !movies.isEmpty()) {
                 mAdapter.setData(movies);
+                restoreLayoutManagerPosition();
             }
         }
     }

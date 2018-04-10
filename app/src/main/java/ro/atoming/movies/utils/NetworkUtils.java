@@ -1,5 +1,7 @@
 package ro.atoming.movies.utils;
 
+import android.content.Context;
+import android.text.TextUtils;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -15,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import ro.atoming.movies.BuildConfig;
 import ro.atoming.movies.models.Movie;
 import ro.atoming.movies.models.Trailer;
 
@@ -25,8 +28,9 @@ import ro.atoming.movies.models.Trailer;
 public class NetworkUtils {
     public static final String LOG_TAG = NetworkUtils.class.getSimpleName();
 
+
     public static final String BASE_URL = "https://api.themoviedb.org/3/movie/";
-    public static final String API_KEY = "";
+    public final static String API_KEY = BuildConfig.API_KEY;
 
     public static final String api_key = "api_key";
 
@@ -42,6 +46,7 @@ public class NetworkUtils {
     public static final String JSON_POSTER_PATH = "poster_path";
     public static final String JSON_OVERVIEW_KEY = "overview";
     public static final String JSON_DATE_KEY = "release_date";
+    private static Context mContext;
 
     private static String trailerPathString;
 
@@ -54,7 +59,6 @@ public class NetworkUtils {
             Log.e(LOG_TAG, "Problem with HTTP response !", e);
         }
         List<Movie> movieList = extractJsonResponse(jsonResponse);
-        Log.v(LOG_TAG, "This is the movie list " + movieList.size());
         return movieList;
     }
 
@@ -113,10 +117,11 @@ public class NetworkUtils {
         String releaseDate = "";
         String overview = "";
         trailerPathString = "";
-
+        if (TextUtils.isEmpty(jsonMovieList)) {
+            return null;
+        }
         List<Movie> movieList = new ArrayList<>();
         try {
-
             JSONObject jsonMovie = new JSONObject(jsonMovieList);
             if (jsonMovie.has(JSON_RESULTS_ARRAY)) {
                 JSONArray movieResults = jsonMovie.getJSONArray(JSON_RESULTS_ARRAY);
@@ -164,6 +169,9 @@ public class NetworkUtils {
         String reviewAuthor = "";
         String reviewContent = "";
         String reviewUrl = "";
+        if (TextUtils.isEmpty(jsonTrailers)) {
+            return null;
+        }
         try {
             JSONObject jsonObject = new JSONObject(jsonTrailers);
             if (jsonObject.has("videos")) {

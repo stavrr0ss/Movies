@@ -53,6 +53,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     public void setData(List<Movie> movieData) {
         mMovieList = movieData;
         notifyDataSetChanged();
+
     }
 
     public interface ListItemClickListener {

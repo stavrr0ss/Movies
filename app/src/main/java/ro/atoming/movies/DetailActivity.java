@@ -162,9 +162,10 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
     /**
      * method used to check if the movie is already in the Database, giving its ID
      */
-    private boolean addedToFavorite(String currentMovieId) {
+    private boolean addedToFavorite(String mMovieId) {
         String selection = MovieContract.MovieEntry.COLUMN_MOVIE_ID + "=?";
-        String[] selectionArgs = new String[]{currentMovieId};
+        String[] selectionArgs = new String[]{mMovieId};
+        //Uri currentMovieUri = ContentUris.withAppendedId(MovieContract.MovieEntry.CONTENT_URI, id);
         SQLiteDatabase db = mMovieHelper.getReadableDatabase();
         Cursor cursor = db.query(MovieContract.MovieEntry.TABLE_NAME,
                 null,
@@ -196,13 +197,13 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
         mFavoriteImage.setBackgroundColor(getResources().getColor(R.color.colorAccent));
     }
 
-    private void deleteMovieFromDb(String currentMovieId) {
-        SQLiteDatabase db = mMovieHelper.getWritableDatabase();
+    private void deleteMovieFromDb(String mMovieId) {
         String selection = MovieContract.MovieEntry.COLUMN_MOVIE_ID + "=?";
-        String[] selectionArgs = new String[]{currentMovieId};
-        int rowsDeleted = db.delete(MovieContract.MovieEntry.TABLE_NAME, selection, selectionArgs);
-        //getContentResolver().delete(MovieContract.MovieEntry.CONTENT_URI,selection,selectionArgs);
+        String[] selectionArgs = new String[]{mMovieId};
+        int rowsDeleted = getContentResolver().delete(MovieContract.MovieEntry.CONTENT_URI, selection, selectionArgs);
+        getLoaderManager().restartLoader(LOADER_ID, null, this);
         if (rowsDeleted != 0) {
+            Log.v(LOG_TAG, "Number of rows deleted " + rowsDeleted);
             Toast.makeText(DetailActivity.this, "Movie removed from Favorites!", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(DetailActivity.this, "Problem removing movie from Favorites!", Toast.LENGTH_SHORT).show();
@@ -279,27 +280,31 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
         @Override
         protected void onPostExecute(Trailer trailer) {
             super.onPostExecute(trailer);
-            mTrailerNameString = "Trailer name: " + trailer.getName();
-            mTrailerName.setText(mTrailerNameString);
-            //extract the review author and set the text
-            mReviewAuthorString = trailer.getAuthor();
-            if (!TextUtils.isEmpty(mReviewAuthorString)) {
-                mReviewAuthor.setText(mReviewAuthorString);
+            if (trailer != null) {
+                mTrailerNameString = "Trailer name: " + trailer.getName();
+                mTrailerName.setText(mTrailerNameString);
+                //extract the review author and set the text
+                mReviewAuthorString = trailer.getAuthor();
+                if (!TextUtils.isEmpty(mReviewAuthorString)) {
+                    mReviewAuthor.setText(mReviewAuthorString);
+                } else {
+                    mReviewAuthor.setText("No authors available.");
+                }
+                //extract the review content and set the text
+                mReviewContentString = trailer.getContent();
+                if (!TextUtils.isEmpty(mReviewContentString)) {
+                    mReviewContent.setText(getShortReview(mReviewContentString));
+                } else {
+                    mReviewContent.setText("No reviews available.");
+                }
+                mTrailerKey = trailer.getKey();
+                mReviewLink = trailer.getReviewUrl();
+                Log.v(LOG_TAG, "This is the REVIEW LINK:" + mReviewLink);
+                if (TextUtils.isEmpty(mReviewLink)) {
+                    mReviewLinkImage.setVisibility(View.INVISIBLE);
+                }
             } else {
-                mReviewAuthor.setText("No authors available.");
-            }
-            //extract the review content and set the text
-            mReviewContentString = trailer.getContent();
-            if (!TextUtils.isEmpty(mReviewContentString)) {
-                mReviewContent.setText(getShortReview(mReviewContentString));
-            } else {
-                mReviewContent.setText("No reviews available.");
-            }
-            mTrailerKey = trailer.getKey();
-            mReviewLink = trailer.getReviewUrl();
-            Log.v(LOG_TAG, "This is the REVIEW LINK:" + mReviewLink);
-            if (TextUtils.isEmpty(mReviewLink)) {
-                mReviewLinkImage.setVisibility(View.INVISIBLE);
+                Log.v(LOG_TAG, "Trailer not available !");
             }
         }
     }
