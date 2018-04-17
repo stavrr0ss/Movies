@@ -14,6 +14,7 @@ import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -36,17 +37,17 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     public static final int TASK_LOADER_ID = 22;
     public static final String LOG_TAG = MainActivity.class.getSimpleName();
-    public static final int SPAN_COUNT = 2;
     public static final String PATH_POPULAR = "popular";
     public static final String PATH_TOP_RATED = "top_rated";
     private static String PATH_DEFAULT = PATH_POPULAR;
     private static Context mContext;
     private static MovieAdapter mAdapter;
+    public int SPAN_COUNT;
     private RecyclerView mRecyclerview;
-    private MovieCursorAdapter mCursorAdapter;
-    private List<Movie> mMovieList;
     private ProgressBar mProgressBar;
     private TextView mEmptyTextView;
+    private MovieCursorAdapter mCursorAdapter;
+    private List<Movie> mMovieList;
     private String SAVED_LAYOUT_MANAGER = "curentLayout";
     private Parcelable layoutManagerSavedState;
     private Cursor mCursor;
@@ -62,14 +63,26 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         return buildUri.toString();
     }
 
+    public static int calculateNoOfColumns(Context context) {
+        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+        float dpWidth = displayMetrics.widthPixels / displayMetrics.density;
+        int scalingFactor = 180;
+        int noOfColumns = (int) (dpWidth / scalingFactor);
+        if (noOfColumns < 2)
+            noOfColumns = 2;
+        return noOfColumns;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Stetho.initializeWithDefaults(this);
-        mRecyclerview = findViewById(R.id.recyclerView);
-        mProgressBar = findViewById(R.id.progressBar);
+
         mEmptyTextView = findViewById(R.id.emptyTextView);
+        mProgressBar = findViewById(R.id.progressBar);
+        mRecyclerview = findViewById(R.id.recyclerView);
+
         if (savedInstanceState != null) {
             layoutManagerSavedState = savedInstanceState.getParcelable(SAVED_LAYOUT_MANAGER);
         }
@@ -83,6 +96,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         }
         mAdapter = new MovieAdapter(this, mMovieList, this);
         mRecyclerview.setAdapter(mAdapter);
+        SPAN_COUNT = calculateNoOfColumns(this);
         mRecyclerview.setLayoutManager(new GridLayoutManager(this, SPAN_COUNT));
         mRecyclerview.setHasFixedSize(true);
         mRecyclerview.getLayoutManager().onRestoreInstanceState(layoutManagerSavedState);
