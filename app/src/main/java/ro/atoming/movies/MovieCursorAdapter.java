@@ -89,6 +89,7 @@ public class MovieCursorAdapter extends RecyclerView.Adapter<MovieCursorAdapter.
 
         @Override
         public void onClick(View view) {
+
             int clickedItem = (int) view.getTag();
             mCursor.moveToPosition(clickedItem);
             Uri curentMovieUri = ContentUris.withAppendedId(MovieContract.MovieEntry.CONTENT_URI, clickedItem);

@@ -18,6 +18,7 @@ public class MovieContract {
 
     public static class MovieEntry implements BaseColumns {
 
+        //TODO : complete the database also with trailer details
         public static final String TABLE_NAME = "movies";
         public static final String _ID = BaseColumns._ID;
         public static final String COLUMN_TITLE = "title";
@@ -26,6 +27,11 @@ public class MovieContract {
         public static final String COLUMN_RELEASE_DATE = "releaseDate";
         public static final String COLUMN_VOTE_AVERAGE = "votes";
         public static final String COLUMN_OVERVIEW = "overview";
+        public static final String COLUMN_TRAILER_KEY = "trailerKey";
+        public static final String COLUMN_TRAILER_NAME = "trailerName";
+        public static final String COLUMN_REVIEW_AUTHOR = "author";
+        public static final String COLUMN_REVIEW_CONTENT = "content";
+        public static final String COLUMN_REVIEW_URL = "reviewLink";
 
         public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_MOVIE);
 

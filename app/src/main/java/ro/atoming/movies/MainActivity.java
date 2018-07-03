@@ -27,6 +27,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import ro.atoming.movies.data.MovieContract;
 import ro.atoming.movies.models.Movie;
 import ro.atoming.movies.utils.NetworkUtils;
@@ -43,9 +45,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private static Context mContext;
     private static MovieAdapter mAdapter;
     public int SPAN_COUNT;
-    private RecyclerView mRecyclerview;
-    private ProgressBar mProgressBar;
-    private TextView mEmptyTextView;
+    @BindView(R.id.recyclerView) RecyclerView mRecyclerview;
+    @BindView(R.id.progressBar)ProgressBar mProgressBar;//private TextView mEmptyTextView;
+    @BindView(R.id.emptyTextView)TextView mEmptyTextView;
     private MovieCursorAdapter mCursorAdapter;
     private List<Movie> mMovieList;
     private String SAVED_LAYOUT_MANAGER = "curentLayout";
@@ -78,10 +80,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Stetho.initializeWithDefaults(this);
-
-        mEmptyTextView = findViewById(R.id.emptyTextView);
-        mProgressBar = findViewById(R.id.progressBar);
-        mRecyclerview = findViewById(R.id.recyclerView);
+        ButterKnife.bind(this);
 
         if (savedInstanceState != null) {
             layoutManagerSavedState = savedInstanceState.getParcelable(SAVED_LAYOUT_MANAGER);
@@ -170,7 +169,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     private void showFavoriteMovies() {
         LoaderManager loaderManager = getLoaderManager();
-        loaderManager.initLoader(TASK_LOADER_ID, null, this);
+        loaderManager.restartLoader(TASK_LOADER_ID, null, this);
         mCursorAdapter = new MovieCursorAdapter(this, mCursor, this);
         mRecyclerview.setAdapter(mCursorAdapter);
         mRecyclerview.setLayoutManager(new GridLayoutManager(this, SPAN_COUNT));
@@ -193,7 +192,12 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 MovieContract.MovieEntry.COLUMN_TITLE,
                 MovieContract.MovieEntry.COLUMN_RELEASE_DATE,
                 MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE,
-                MovieContract.MovieEntry.COLUMN_OVERVIEW
+                MovieContract.MovieEntry.COLUMN_OVERVIEW,
+                MovieContract.MovieEntry.COLUMN_TRAILER_KEY,
+                MovieContract.MovieEntry.COLUMN_TRAILER_NAME,
+                MovieContract.MovieEntry.COLUMN_REVIEW_AUTHOR,
+                MovieContract.MovieEntry.COLUMN_REVIEW_CONTENT,
+                MovieContract.MovieEntry.COLUMN_REVIEW_URL
         };
         return new CursorLoader(this,
                 MovieContract.MovieEntry.CONTENT_URI,
@@ -238,4 +242,5 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             }
         }
     }
+
 }

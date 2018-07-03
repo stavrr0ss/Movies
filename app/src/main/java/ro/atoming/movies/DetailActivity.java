@@ -25,6 +25,8 @@ import com.squareup.picasso.Picasso;
 import java.io.IOException;
 import java.net.URL;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import ro.atoming.movies.data.MovieContract;
 import ro.atoming.movies.data.MovieDbHelper;
 import ro.atoming.movies.models.Movie;
@@ -37,20 +39,21 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
     public static final int LOADER_ID = 33;
     public static final String TRAILER_BASE_URL = "http://www.youtube.com/watch?v=";
     public static final int REVIEW_LENGTH = 200;
-    private static String mMovieId;
+    private static int mMovieId;
     private Context mContext;
-    private ImageView mPoster;
-    private TextView mTitle;
-    private TextView mReleaseDate;
-    private TextView mVoteAverage;
-    private TextView mOverview;
-    private ImageView mPlayTrailer;
-    private TextView mTrailerName;
-    private TextView mReviewAuthor;
-    private TextView mReviewContent;
-    private ImageView mReviewLinkImage;
-    private ImageView mFavoriteImage;
-    private Button mFavoriteButton;
+    @BindView(R.id.detail_movie_poster)ImageView mPoster;
+    @BindView(R.id.movie_title_tv) TextView mTitle;
+    @BindView(R.id.release_date_tv)TextView mReleaseDate;
+    @BindView(R.id.vote_average_tv)TextView mVoteAverage;
+    @BindView(R.id.overview_tv)TextView mOverview;
+    @BindView(R.id.play_icon)ImageView mPlayTrailer;
+    @BindView(R.id.trailer_name_tv)TextView mTrailerName;
+    @BindView(R.id.review_author)TextView mReviewAuthor;
+    @BindView(R.id.review_content)TextView mReviewContent;
+    @BindView(R.id.link_icon)ImageView mReviewLinkImage;
+    @BindView(R.id.favorite_image)ImageView mFavoriteImage;
+    @BindView(R.id.add_fav_button)Button mFavoriteButton;
+
     private String mReleaseDateString;
     private double mUserVotes;
     private String mOverviewString;
@@ -66,30 +69,18 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
     private Uri mUri;
 
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
         mMovieHelper = new MovieDbHelper(getApplicationContext());
-
-        mTitle = findViewById(R.id.movie_title_tv);
-        mPoster = findViewById(R.id.detail_movie_poster);
-        mReleaseDate = findViewById(R.id.release_date_tv);
-        mVoteAverage = findViewById(R.id.vote_average_tv);
-        mOverview = findViewById(R.id.overview_tv);
-        mPlayTrailer = findViewById(R.id.play_icon);
-        mTrailerName = findViewById(R.id.trailer_name_tv);
-        mPlayTrailer = findViewById(R.id.play_icon);
-        mReviewAuthor = findViewById(R.id.review_author);
-        mReviewContent = findViewById(R.id.review_content);
-        mReviewLinkImage = findViewById(R.id.link_icon);
-        mFavoriteButton = findViewById(R.id.add_fav_button);
-        mFavoriteImage = findViewById(R.id.favorite_image);
-
-
+        ButterKnife.bind(this);
         Intent intent = getIntent();
-        if (intent.hasExtra(getString(R.string.parcel_reference_movie))) {
-            Movie currentMovie = intent.getParcelableExtra(getString(R.string.parcel_reference_movie));
+        Bundle bundle = intent.getExtras();
+        if (bundle!=null) {
+            Movie currentMovie = bundle.getParcelable("movie");
             mMovieTitle = currentMovie.getTitle();
             mTitle.setText(mMovieTitle);
             //set the image
@@ -104,9 +95,12 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
             //set the overview of the movie
             mOverviewString = currentMovie.getOverview();
             mOverview.setText(mOverviewString);
-            final int movieId = currentMovie.getMovieId();
-            mMovieId = Integer.toString(movieId);
-        } else {
+            //final int movieId = currentMovie.getMovieId();
+            mMovieId = currentMovie.getMovieId();
+            //mMovieId = Integer.toString(movieId);
+        }
+        //TODO - SOLVED: try to send only the Uri through intent.setData and retrieve it here
+        else if (intent.getData()!= null){
             mUri = intent.getData();
             LoaderManager loaderManager = getLoaderManager();
             loaderManager.initLoader(LOADER_ID, null, this);
@@ -162,13 +156,14 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
     /**
      * method used to check if the movie is already in the Database, giving its ID
      */
-    private boolean addedToFavorite(String mMovieId) {
+    private boolean addedToFavorite(int movieId) {
         String selection = MovieContract.MovieEntry.COLUMN_MOVIE_ID + "=?";
-        String[] selectionArgs = new String[]{mMovieId};
+        String[] selectionArgs = new String[]{String.valueOf(movieId)};//try with the same as selection - COLUMN_MOVIE_ID
         //Uri currentMovieUri = ContentUris.withAppendedId(MovieContract.MovieEntry.CONTENT_URI, id);
         SQLiteDatabase db = mMovieHelper.getReadableDatabase();
+        String[] projection = {MovieContract.MovieEntry.COLUMN_MOVIE_ID};
         Cursor cursor = db.query(MovieContract.MovieEntry.TABLE_NAME,
-                null,
+                projection,
                 selection,
                 selectionArgs,
                 null,
@@ -184,22 +179,36 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
      * this method is used to insert the movie into the Database
      */
     private void addMovieToFavorite() {
-        ContentValues values = new ContentValues();
-        values.put(MovieContract.MovieEntry.COLUMN_TITLE, mMovieTitle);
-        Log.v(LOG_TAG, "This is the value of movieTitle " + mMovieTitle);
-        values.put(MovieContract.MovieEntry.COLUMN_MOVIE_ID, mMovieId);
-        values.put(MovieContract.MovieEntry.COLUMN_POSTER, mPosterString);
-        Log.v(LOG_TAG, "This is the poster path string : " + mPosterString);
-        values.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, mReleaseDateString);
-        values.put(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE, mUserVotes);
-        values.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, mOverviewString);
-        getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, values);
+        AddToFavoriteTask addMovieTask = new AddToFavoriteTask();
+        addMovieTask.execute();
         mFavoriteImage.setBackgroundColor(getResources().getColor(R.color.colorAccent));
     }
+    private class AddToFavoriteTask extends AsyncTask<Void, Void, Void>{
 
-    private void deleteMovieFromDb(String mMovieId) {
+        @Override
+        protected Void doInBackground(Void... voids) {
+            ContentValues values = new ContentValues();
+            values.put(MovieContract.MovieEntry.COLUMN_TITLE, mMovieTitle);
+            Log.v(LOG_TAG, "This is the value of movieTitle " + mMovieTitle);
+            values.put(MovieContract.MovieEntry.COLUMN_MOVIE_ID, mMovieId);
+            values.put(MovieContract.MovieEntry.COLUMN_POSTER, mPosterString);
+            Log.v(LOG_TAG, "This is the poster path string : " + mPosterString);
+            values.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, mReleaseDateString);
+            values.put(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE, mUserVotes);
+            values.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, mOverviewString);
+            values.put(MovieContract.MovieEntry.COLUMN_TRAILER_KEY,mTrailerKey);
+            values.put(MovieContract.MovieEntry.COLUMN_TRAILER_NAME,mTrailerNameString);
+            values.put(MovieContract.MovieEntry.COLUMN_REVIEW_AUTHOR,mReviewAuthorString);
+            values.put(MovieContract.MovieEntry.COLUMN_REVIEW_CONTENT,mReviewContentString);
+            values.put(MovieContract.MovieEntry.COLUMN_REVIEW_URL,mReviewLink);
+            getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, values);
+            return null;
+        }
+    }
+
+    private void deleteMovieFromDb(int mMovieId) {
         String selection = MovieContract.MovieEntry.COLUMN_MOVIE_ID + "=?";
-        String[] selectionArgs = new String[]{mMovieId};
+        String[] selectionArgs = new String[]{String.valueOf(mMovieId)};
         int rowsDeleted = getContentResolver().delete(MovieContract.MovieEntry.CONTENT_URI, selection, selectionArgs);
         getLoaderManager().restartLoader(LOADER_ID, null, this);
         if (rowsDeleted != 0) {
@@ -208,8 +217,9 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
         } else {
             Toast.makeText(DetailActivity.this, "Problem removing movie from Favorites!", Toast.LENGTH_SHORT).show();
         }
-        finish();
+        //finish();
     }
+
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
@@ -220,7 +230,15 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
                 MovieContract.MovieEntry.COLUMN_POSTER,
                 MovieContract.MovieEntry.COLUMN_RELEASE_DATE,
                 MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE,
-                MovieContract.MovieEntry.COLUMN_OVERVIEW};
+                MovieContract.MovieEntry.COLUMN_OVERVIEW,
+                MovieContract.MovieEntry.COLUMN_TRAILER_KEY,
+                MovieContract.MovieEntry.COLUMN_TRAILER_NAME,
+                MovieContract.MovieEntry.COLUMN_REVIEW_AUTHOR,
+                MovieContract.MovieEntry.COLUMN_REVIEW_CONTENT,
+                MovieContract.MovieEntry.COLUMN_REVIEW_URL
+        };
+        //Uri singleMovieUri = ContentUris.withAppendedId(MovieContract.MovieEntry.CONTENT_URI.buildUpon()//testing new options
+                //.appendPath(MovieContract.MovieEntry.CONTENT_ITEM_TYPE).build(),mMovieId);
         return new CursorLoader(this,
                 mUri,
                 projection,
@@ -241,13 +259,23 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
             int movieReleaseDateIndex = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_RELEASE_DATE);
             int movieVotesIndex = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE);
             int movieOverviewIndex = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_OVERVIEW);
+            int trailerKeyIndex = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_TRAILER_KEY);
+            int trailerNameIndex = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_TRAILER_NAME);
+            int reviewAuthorIndex = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_REVIEW_AUTHOR);
+            int reviewContentIndex = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_REVIEW_CONTENT);
+            int reviewUrlIndex = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_REVIEW_URL);
 
             mPosterString = cursor.getString(moviePosterIndex);
-            mMovieId = cursor.getString(movieIdIndex);
+            mMovieId = cursor.getInt(movieIdIndex);
             mMovieTitle = cursor.getString(movieTitleIndex);
             mUserVotes = cursor.getDouble(movieVotesIndex);
             mReleaseDateString = cursor.getString(movieReleaseDateIndex);
             mOverviewString = cursor.getString(movieOverviewIndex);
+            mTrailerKey = cursor.getString(trailerKeyIndex);
+            mTrailerNameString = cursor.getString(trailerNameIndex);
+            mReviewAuthorString = cursor.getString(reviewAuthorIndex);
+            mReviewContentString = cursor.getString(reviewContentIndex);
+            mReviewLink = cursor.getString(reviewUrlIndex);
 
             mTitle.setText(mMovieTitle);
             Picasso.with(getApplicationContext()).load(mPosterString).into(mPoster);
@@ -255,6 +283,10 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
             mVoteAverage.setText(userRating);
             mReleaseDate.setText(mReleaseDateString);
             mOverview.setText(mOverviewString);
+            mTrailerName.setText(mTrailerNameString);
+            mReviewAuthor.setText(mReviewAuthorString);
+            mReviewContent.setText(mReviewContentString);
+
         }
     }
 
@@ -266,7 +298,7 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
 
         @Override
         protected Trailer doInBackground(URL... urls) {
-            URL url = NetworkUtils.buildUrl(NetworkUtils.buildTrailersReviewsUri(mMovieId));
+            URL url = NetworkUtils.buildUrl(NetworkUtils.buildTrailersReviewsUri(String.valueOf(mMovieId)));
             String jsonResponse = "";
             try {
                 jsonResponse = NetworkUtils.makeHttpRequest(url);

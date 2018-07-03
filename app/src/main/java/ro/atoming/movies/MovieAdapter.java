@@ -2,6 +2,7 @@ package ro.atoming.movies;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -53,7 +54,6 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     public void setData(List<Movie> movieData) {
         mMovieList = movieData;
         notifyDataSetChanged();
-
     }
 
     public interface ListItemClickListener {
@@ -75,8 +75,12 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         public void onClick(View view) {
             int clickedItem = getAdapterPosition();
             Movie movie = mMovieList.get(clickedItem);
+            int mMovieId = movie.getMovieId();
             Intent intent = new Intent(mContext, DetailActivity.class);
-            intent.putExtra("movie", movie);
+            Bundle bundle = new Bundle();
+            bundle.putParcelable("movie", movie);
+            bundle.putInt("movieId",mMovieId);
+            intent.putExtras(bundle);
             mContext.startActivity(intent);
             mListItemClickListener.onListItemClick(clickedItem);
         }

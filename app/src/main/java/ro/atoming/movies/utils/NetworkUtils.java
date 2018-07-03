@@ -112,6 +112,7 @@ public class NetworkUtils {
     public static List<Movie> extractJsonResponse(String jsonMovieList) {
         double averageVotes = 0;
         int movieId = 0;
+        String mMovieIdString = "";
         String title = "";
         String posterPathString = "";
         String releaseDate = "";
@@ -129,6 +130,7 @@ public class NetworkUtils {
                     JSONObject currentMovie = movieResults.getJSONObject(i);
                     if (currentMovie.has(MOVIE_ID)) {
                         movieId = currentMovie.getInt(MOVIE_ID);
+                        //mMovieIdString = String.valueOf(movieId);
                         trailerPathString = buildTrailersReviewsUri(String.valueOf(movieId));
                         Log.v(LOG_TAG, "This is the trailerPath " + trailerPathString);
                         //trailerList = extractJsonTrailers(trailerPathString);
