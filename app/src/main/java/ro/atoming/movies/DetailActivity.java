@@ -68,9 +68,7 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
     private MovieDbHelper mMovieHelper;
     private Uri mUri;
 
-
-
-
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,9 +93,9 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
             //set the overview of the movie
             mOverviewString = currentMovie.getOverview();
             mOverview.setText(mOverviewString);
-            //final int movieId = currentMovie.getMovieId();
             mMovieId = currentMovie.getMovieId();
-            //mMovieId = Integer.toString(movieId);
+            TrailerTask trailerTask = new TrailerTask();
+            trailerTask.execute();
         }
         //TODO - SOLVED: try to send only the Uri through intent.setData and retrieve it here
         else if (intent.getData()!= null){
@@ -106,8 +104,7 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
             loaderManager.initLoader(LOADER_ID, null, this);
         }
 
-        TrailerTask trailerTask = new TrailerTask();
-        trailerTask.execute();
+        //removed the Trailer task at we call it only first time, after that we have it in the dataBase
 
         mPlayTrailer.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -217,9 +214,8 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
         } else {
             Toast.makeText(DetailActivity.this, "Problem removing movie from Favorites!", Toast.LENGTH_SHORT).show();
         }
-        //finish();
+        finish();
     }
-
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
@@ -237,8 +233,6 @@ public class DetailActivity extends AppCompatActivity implements LoaderManager.L
                 MovieContract.MovieEntry.COLUMN_REVIEW_CONTENT,
                 MovieContract.MovieEntry.COLUMN_REVIEW_URL
         };
-        //Uri singleMovieUri = ContentUris.withAppendedId(MovieContract.MovieEntry.CONTENT_URI.buildUpon()//testing new options
-                //.appendPath(MovieContract.MovieEntry.CONTENT_ITEM_TYPE).build(),mMovieId);
         return new CursorLoader(this,
                 mUri,
                 projection,

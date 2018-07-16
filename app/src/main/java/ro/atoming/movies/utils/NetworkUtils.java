@@ -39,13 +39,22 @@ public class NetworkUtils {
 
     public static final String TRAILER_PATH = "append_to_response=videos,reviews";
 
-    public static final String JSON_RESULTS_ARRAY = "results";
+    public static final String RESULTS = "results";
+    public static final String JSON_RESULTS_ARRAY = RESULTS;
     public static final String MOVIE_ID = "id";
     public static final String JSON_VOTES_KEY = "vote_average";
     public static final String JSON_TITLE_KEY = "title";
     public static final String JSON_POSTER_PATH = "poster_path";
     public static final String JSON_OVERVIEW_KEY = "overview";
     public static final String JSON_DATE_KEY = "release_date";
+    public static final String VIDEOS = "videos";
+    public static final String TYPE = "type";
+    public static final String KEY = "key";
+    public static final String NAME = "name";
+    public static final String REVIEWS = "reviews";
+    public static final String AUTHOR = "author";
+    public static final String CONTENT = "content";
+    public static final String URL = "url";
     private static Context mContext;
 
     private static String trailerPathString;
@@ -129,28 +138,24 @@ public class NetworkUtils {
                 for (int i = 0; i < movieResults.length(); i++) {
                     JSONObject currentMovie = movieResults.getJSONObject(i);
                     if (currentMovie.has(MOVIE_ID)) {
-                        movieId = currentMovie.getInt(MOVIE_ID);
-                        //mMovieIdString = String.valueOf(movieId);
+                        movieId = currentMovie.optInt(MOVIE_ID);
+
                         trailerPathString = buildTrailersReviewsUri(String.valueOf(movieId));
                         Log.v(LOG_TAG, "This is the trailerPath " + trailerPathString);
-                        //trailerList = extractJsonTrailers(trailerPathString);
+
                     }
-                    if (currentMovie.has(JSON_VOTES_KEY)) {
-                        averageVotes = currentMovie.getDouble(JSON_VOTES_KEY);
-                    }
-                    if (currentMovie.has(JSON_TITLE_KEY)) {
-                        title = currentMovie.getString(JSON_TITLE_KEY);
-                    }
-                    if (currentMovie.has(JSON_POSTER_PATH)) {
-                        String posterPathFragment = currentMovie.getString(JSON_POSTER_PATH);
+
+                    averageVotes = currentMovie.optDouble(JSON_VOTES_KEY);
+
+                    title = currentMovie.optString(JSON_TITLE_KEY);
+
+                    String posterPathFragment = currentMovie.optString(JSON_POSTER_PATH);
                         posterPathString = buildImageUri(posterPathFragment);
-                    }
-                    if (currentMovie.has(JSON_DATE_KEY)) {
-                        releaseDate = currentMovie.getString(JSON_DATE_KEY);
-                    }
-                    if (currentMovie.has(JSON_OVERVIEW_KEY)) {
-                        overview = currentMovie.getString(JSON_OVERVIEW_KEY);
-                    }
+
+                    releaseDate = currentMovie.optString(JSON_DATE_KEY);
+
+                    overview = currentMovie.optString(JSON_OVERVIEW_KEY);
+
                     Movie movie = new Movie(title, releaseDate, posterPathString, averageVotes, overview, movieId);
                     movieList.add(movie);
                 }
@@ -176,44 +181,44 @@ public class NetworkUtils {
         }
         try {
             JSONObject jsonObject = new JSONObject(jsonTrailers);
-            if (jsonObject.has("videos")) {
+            if (jsonObject.has(VIDEOS)) {
                 Log.v(LOG_TAG, "THE MOVIE HAS VIDEOS");
-                JSONObject jsonVideos = jsonObject.getJSONObject("videos");
+                JSONObject jsonVideos = jsonObject.getJSONObject(VIDEOS);
 
-                if (jsonVideos.has("results")) {
-                    JSONArray videoResults = jsonVideos.getJSONArray("results");
+                if (jsonVideos.has(RESULTS)) {
+                    JSONArray videoResults = jsonVideos.getJSONArray(RESULTS);
                     for (int i = 0; i < videoResults.length(); i++) {
                         JSONObject jsonKey = videoResults.getJSONObject(i);
-                        if (jsonKey.has("type")) {
-                            String trailerType = jsonKey.getString("type");
+                        if (jsonKey.has(TYPE)) {
+                            String trailerType = jsonKey.getString(TYPE);
                             if (trailerType.matches("Trailer")) {
-                                if (jsonKey.has("key")) {
-                                    keyString = jsonKey.getString("key");
+                                if (jsonKey.has(KEY)) {
+                                    keyString = jsonKey.getString(KEY);
                                     Log.v(LOG_TAG, "This is json key string : " + keyString);
                                 }
-                                if (jsonKey.has("name")) {
-                                    trailerName = jsonKey.getString("name");
+                                if (jsonKey.has(NAME)) {
+                                    trailerName = jsonKey.getString(NAME);
                                 }
                             }
                         }
                     }
                 }
             }
-            if (jsonObject.has("reviews")) {
-                JSONObject jsonReviews = jsonObject.getJSONObject("reviews");
-                if (jsonReviews.has("results")) {
-                    JSONArray reviewsResults = jsonReviews.getJSONArray("results");
+            if (jsonObject.has(REVIEWS)) {
+                JSONObject jsonReviews = jsonObject.getJSONObject(REVIEWS);
+                if (jsonReviews.has(RESULTS)) {
+                    JSONArray reviewsResults = jsonReviews.getJSONArray(RESULTS);
                     for (int i = 0; i < reviewsResults.length(); i++) {
                         JSONObject currentReview = reviewsResults.getJSONObject(i);
-                        if (currentReview.has("author")) {
-                            reviewAuthor = currentReview.getString("author");
+                        if (currentReview.has(AUTHOR)) {
+                            reviewAuthor = currentReview.getString(AUTHOR);
                             Log.v(LOG_TAG, "This is the author : " + reviewAuthor);
                         }
-                        if (currentReview.has("content")) {
-                            reviewContent = currentReview.getString("content");
+                        if (currentReview.has(CONTENT)) {
+                            reviewContent = currentReview.getString(CONTENT);
                         }
-                        if (currentReview.has("url")) {
-                            reviewUrl = currentReview.getString("url");
+                        if (currentReview.has(URL)) {
+                            reviewUrl = currentReview.getString(URL);
                         }
                     }
                 }
